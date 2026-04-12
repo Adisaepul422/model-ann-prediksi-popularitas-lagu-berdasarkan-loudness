@@ -3,11 +3,17 @@
 from flask import Flask, render_template, request
 import numpy as np
 import joblib
+import os
 
 app = Flask(__name__)
 
-# Load model yang sudah dilatih
-model = joblib.load('model.pkl')
+# Load model yang sudah dilatih dengan error handling
+try:
+    model = joblib.load('model.pkl')
+    print("Model berhasil dimuat!")
+except Exception as e:
+    print(f"Error loading model: {e}")
+    model = None
 
 @app.route('/')
 def home():
@@ -16,6 +22,10 @@ def home():
 @app.route('/predict', methods=['POST'])
 def predict():
     try:
+        if model is None:
+            return render_template('index.html', 
+                                 error="Model belum dimuat. Silakan coba lagi nanti.")
+        
         # Ambil input loudness dari form
         loudness = float(request.form.get('loudness', 0))
         
