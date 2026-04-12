@@ -1,0 +1,152 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Prediksi Popularitas Lagu - Berdasarkan Loudness</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+            min-height: 100vh;
+            padding: 20px;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        .card {
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        .card-header {
+            background: linear-gradient(135deg, #e94560 0%, #533483 100%);
+            color: white;
+            padding: 25px;
+        }
+        .btn-predict {
+            background: linear-gradient(135deg, #e94560 0%, #533483 100%);
+            border: none;
+            padding: 12px 40px;
+            font-weight: bold;
+            font-size: 1.1rem;
+            transition: transform 0.2s;
+        }
+        .btn-predict:hover {
+            transform: scale(1.02);
+            background: linear-gradient(135deg, #d63a54 0%, #472a70 100%);
+        }
+        .result-card {
+            border-radius: 15px;
+            padding: 25px;
+            text-align: center;
+            margin-bottom: 20px;
+        }
+        .display-large {
+            font-size: 4rem;
+            font-weight: bold;
+        }
+        .loudness-meter {
+            height: 10px;
+            background: linear-gradient(90deg, #2ecc71, #f1c40f, #e74c3c);
+            border-radius: 10px;
+            margin: 20px 0;
+        }
+        .info-box {
+            background: #f8f9fa;
+            border-radius: 10px;
+            padding: 15px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="row justify-content-center">
+            <div class="col-md-7">
+                <div class="card">
+                    <div class="card-header text-center">
+                        <h2>🎵 Prediksi Popularitas Lagu</h2>
+                        <p class="mb-0">Berdasarkan Tingkat Kekerasan Suara (Loudness)</p>
+                        <small>Menggunakan Linear Regression dengan 1 fitur</small>
+                    </div>
+                    
+                    <div class="card-body p-4">
+                        {% if error %}
+                        <div class="alert alert-danger">
+                            ⚠️ {{ error }}
+                        </div>
+                        {% endif %}
+                        
+                        {% if prediction %}
+                        <div class="result-card bg-{{ color }} bg-opacity-10 border border-{{ color }}">
+                            <h4>📊 Hasil Prediksi</h4>
+                            <div class="display-1 fw-bold text-{{ color }}">{{ prediction }}</div>
+                            <p class="h5">Popularity Score (0-100)</p>
+                            <div class="mt-2">
+                                <span class="badge bg-{{ color }} fs-6 p-2">{{ popular_text }}</span>
+                            </div>
+                            <hr>
+                            <div class="row">
+                                <div class="col-6">
+                                    <small class="text-muted">Loudness Input</small>
+                                    <h3>{{ loudness }} dB</h3>
+                                </div>
+                                <div class="col-6">
+                                    <small class="text-muted">Tingkat Keras</small>
+                                    <h3>{{ level }}</h3>
+                                </div>
+                            </div>
+                        </div>
+                        {% endif %}
+                        
+                        <form method="POST" action="/predict">
+                            <div class="mb-4">
+                                <label class="form-label fw-bold fs-5">
+                                    🔊 Masukkan Nilai Loudness
+                                </label>
+                                <input type="number" step="0.1" class="form-control form-control-lg" 
+                                       name="loudness" 
+                                       placeholder="Contoh: -7.0"
+                                       value="{{ loudness if loudness else '' }}"
+                                       required>
+                                <div class="loudness-meter mt-3"></div>
+                                <div class="d-flex justify-content-between text-muted small">
+                                    <span>🔇 Pelan (-20)</span>
+                                    <span>🔉 Normal (-10)</span>
+                                    <span>🔊 Keras (0)</span>
+                                </div>
+                                <div class="info-box mt-3">
+                                    <strong>ℹ️ Informasi:</strong>
+                                    <ul class="mb-0 mt-2">
+                                        <li>Loudness diukur dalam desibel (dB)</li>
+                                        <li>Semakin mendekati 0 = semakin keras</li>
+                                        <li>Semakin kecil/negatif = semakin pelan</li>
+                                        <li>Rentang umum: -20 dB (pelan) sampai 0 dB (keras)</li>
+                                    </ul>
+                                </div>
+                            </div>
+                            
+                            <div class="text-center">
+                                <button type="submit" class="btn btn-predict text-white">
+                                    🎯 Prediksi Popularitas
+                                </button>
+                            </div>
+                        </form>
+                        
+                        <div class="info-box mt-4 bg-light">
+                            <h6>📈 Persamaan Regresi Linear:</h6>
+                            <p class="mb-0 font-monospace">
+                                Popularity = <strong>4.5</strong> × (loudness) + <strong>85</strong>
+                            </p>
+                            <small class="text-muted">*Semakin keras lagu, semakin populer</small>
+                        </div>
+                    </div>
+                    
+                    <div class="card-footer text-center text-muted py-3">
+                        <small>Tugas 4 - Linear Regression (1 Fitur: Loudness) | © 2025</small>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</body>
+</html>
