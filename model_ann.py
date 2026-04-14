@@ -10,28 +10,22 @@ import joblib
 print("="*60)
 print("TRAINING ARTIFICIAL NEURAL NETWORK (ANN)")
 print("Prediksi Popularitas Berdasarkan Loudness")
-print("Menggunakan MLPRegressor (Multi-layer Perceptron)")
 print("="*60)
 
-print("\n[1] Membaca dataset...")
 df = pd.read_csv('data_loudness.csv')
-print(f"Data: {len(df)} lagu")
+print(f"\nData: {len(df)} lagu")
 print(df.head())
 
-print("\n[2] Normalisasi data...")
 scaler = MinMaxScaler()
 df_scaled = scaler.fit_transform(df[['loudness', 'popularity']])
 
 X = df_scaled[:, 0].reshape(-1, 1)
 Y = df_scaled[:, 1]
 
-print("\n[3] Split data (80% training, 20% testing)...")
 X_train, X_test, Y_train, Y_test = train_test_split(X, Y, test_size=0.2, random_state=42)
-print(f"Training: {len(X_train)} data")
+print(f"\nTraining: {len(X_train)} data")
 print(f"Testing: {len(X_test)} data")
 
-print("\n[4] Membangun model ANN (MLPRegressor)...")
-print("Arsitektur: Input(1) → Hidden(10) → Hidden(10) → Output(1)")
 model = MLPRegressor(
     hidden_layer_sizes=(10, 10),
     activation='relu',
@@ -41,21 +35,19 @@ model = MLPRegressor(
     verbose=False
 )
 
-print("\n[5] Training model...")
+print("\nTraining model ANN...")
 model.fit(X_train, Y_train)
 
-print("\n[6] Evaluasi model...")
 Y_pred = model.predict(X_test)
 
 mae = mean_absolute_error(Y_test, Y_pred)
 mse = mean_squared_error(Y_test, Y_pred)
 r2 = r2_score(Y_test, Y_pred)
 
-print(f"Mean Absolute Error (MAE): {mae:.4f}")
+print(f"\nMean Absolute Error (MAE): {mae:.4f}")
 print(f"Mean Squared Error (MSE): {mse:.4f}")
 print(f"R-squared (R²): {r2:.4f}")
 
-print("\n[7] Visualisasi hasil...")
 X_test_original = scaler.inverse_transform(np.column_stack((X_test[:, 0], np.zeros(len(X_test)))))[:, 0]
 Y_test_original = scaler.inverse_transform(np.column_stack((np.zeros(len(Y_test)), Y_test)))[:, 1]
 Y_pred_original = scaler.inverse_transform(np.column_stack((np.zeros(len(Y_pred)), Y_pred)))[:, 1]
@@ -84,19 +76,18 @@ plt.tight_layout()
 plt.savefig('ann_results.png')
 plt.show()
 
-print("\n[8] Menyimpan model...")
 joblib.dump(model, 'ann_model.pkl')
 joblib.dump(scaler, 'scaler.pkl')
-print("Model disimpan sebagai 'ann_model.pkl' dan 'scaler.pkl'")
+print("\nModel disimpan sebagai 'ann_model.pkl' dan 'scaler.pkl'")
 
-print("\n[9] Contoh prediksi:")
 test_loudness = np.array([[-7.0], [-5.0], [-10.0], [-3.0], [-12.0]])
 test_scaled = scaler.transform(np.column_stack((test_loudness, np.zeros(len(test_loudness)))))[:, 0].reshape(-1, 1)
 predictions_scaled = model.predict(test_scaled)
 predictions = scaler.inverse_transform(np.column_stack((test_scaled[:, 0], predictions_scaled)))[:, 1]
 
+print("\nContoh prediksi:")
 for loud, pred in zip(test_loudness.flatten(), predictions):
-    print(f"Loudness {loud} dB → Prediksi Popularitas: {pred:.1f}")
+    print(f"Loudness {loud} dB -> Prediksi Popularitas: {pred:.1f}")
 
 print("\n" + "="*60)
 print("TRAINING ANN SELESAI!")
